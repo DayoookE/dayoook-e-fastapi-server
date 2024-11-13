@@ -1,2 +1,9 @@
 requests
 bs4
+fastapi
+uvicorn
+google-apps-meet
+google-auth-oauthlib
+google-auth-httplib2
+google-api-python-client
+pydantic
