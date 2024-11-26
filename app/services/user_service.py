@@ -9,7 +9,7 @@ SPRING_SERVER_URL = os.getenv('SPRING_SERVER_URL')
 
 class UserService:
     @staticmethod
-    def get_user_info_by_email(email: str, token: str):
+    def get_user_info_by_email(token: str):
         try:
             # Authorization 헤더에 Bearer 토큰을 포함
             headers = {
@@ -17,7 +17,7 @@ class UserService:
             }
             # 스프링 서버로 요청을 보낼 때 헤더에 토큰 포함
             response = requests.get(
-                f"{SPRING_SERVER_URL}/users/info?email={email}",
+                f"{SPRING_SERVER_URL}/users/info",
                 headers=headers
             )
 
