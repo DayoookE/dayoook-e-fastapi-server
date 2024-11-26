@@ -25,14 +25,16 @@ async def create_meeting(
         raise HTTPException(status_code=401, detail="Authorization header missing")
     try:
         # UserService를 사용해 사용자 정보 가져오기, 토큰을 헤더에 포함
-        user_info = UserService.get_user_info_by_email(email, token)
+        user_info = UserService.get_user_info_by_email(token)
         # 사용자 정보를 출력하거나 추가 로직 작성 가능
         user_id = user_info['result']['id']
         user_role = user_info['result']['role']
+        print(user_id)
+        print(user_role)
 
-        meeting = await service.create_meeting()
+       # meeting = await service.create_meeting()
         return MeetingResponse(
-            meeting_uri=meeting["meeting_uri"],
+            meeting_uri="meeting",
             created_at=datetime.now().isoformat(),
             status="success"
         )
