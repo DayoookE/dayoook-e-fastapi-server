@@ -9,3 +9,8 @@ google-api-python-client
 pydantic
 python-dotenv
 PyJWT
+openai
+sqlalchemy
+sqlmodel
+pymysql
+python-multipart

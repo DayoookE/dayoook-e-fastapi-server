@@ -3,3 +3,8 @@ token.json
 
 .idea
 .env
+
+venv
+
+#uploaded file
+uploads
