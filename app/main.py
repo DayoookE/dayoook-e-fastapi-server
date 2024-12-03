@@ -1,7 +1,7 @@
 # app/main.py
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .api import google_meet_api, welfare_api, ai_api
+from app.api import google_meet_api, welfare_api, ai_api
 import uvicorn
 
 app = FastAPI(title="Dayook API")
