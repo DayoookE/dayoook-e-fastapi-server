@@ -23,7 +23,7 @@ class TutorRecommendResultSchema(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "result": [
+                "recommends": [
                     {
                         "tutor_id": "Tutor0436",
                         "score": 0.9924999999999999,
