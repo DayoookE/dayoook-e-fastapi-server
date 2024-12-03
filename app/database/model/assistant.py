@@ -1,14 +1,16 @@
-from typing import List
+from typing import List, Optional
 from sqlmodel import SQLModel, Field, Relationship
 from app.database.connection import session
 
 
 class Assistant(SQLModel, table=True):
-    user_id: int = Field(primary_key=True, nullable=False)
-    chat_assistant_id: str = Field(nullable=False)
-    review_assistant_id: str = Field(nullable=False)
+    __tablename__ = "assistant_tb"
 
-    # Relationship with thread
+    id: str = Field(primary_key=True)
+    user_id: str = Field(foreign_key="user_tb.id")
+    role: str = Field(default=None)
+
+    user: Optional["User"] = Relationship(back_populates="assistants")
     threads: List["Thread"] = Relationship(back_populates="assistant")
 
 
