@@ -12,9 +12,21 @@ client = OpenAI()
 
 class ChatGptService:
     @staticmethod
-    async def create_assistant():
+    async def create_chat_assistant():
         request = {'instructions': "당신은 학습 보조입니다. 주어진 파일의 내용을 기반으로 나의 질문에 대답합니다." +
                                    " 나는 8-10세의 아동입니다. 밝고 경쾌한 어조로 대답합니다.",
+                   'name': "assistant",
+                   'tools': [{"type": "file_search"}],
+                   'model': "gpt-4o"}
+
+        response = client.beta.assistants.create(**request)
+        return response.id
+
+    @staticmethod
+    async def create_review_assistant():
+        request = {'instructions': "당신은 학습 보조입니다. 주어진 대화문을 기반으로 복습 자료를 생성합니다." +
+                                   " 나는 8-10세의 아동입니다. 복습 자료의 분량은 공백 포함 700자 이내입니다." +
+                                   " **마크다운을 이용하여** 체계적으로 정리합니다.",
                    'name': "assistant",
                    'tools': [{"type": "file_search"}],
                    'model': "gpt-4o"}

@@ -14,3 +14,4 @@ sqlalchemy
 sqlmodel
 pymysql
 python-multipart
+boto3

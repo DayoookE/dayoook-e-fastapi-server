@@ -49,15 +49,18 @@ async def create_new_assistant(request: Request,
         user_id = user_info['result']['id']
 
         # 1. 새로운 어시스턴트 생성
-        assistant_id = await service.create_assistant()
+        chat_assistant_id = await service.create_chat_assistant()
+        review_assistant_id = await service.create_review_assistant()
 
         # 2. db에 어시스턴트 등록
-        create_assistant(Assistant(id=assistant_id, user_id=user_id))
+        create_assistant(Assistant(chat_assistant_id=chat_assistant_id,
+                                   review_assistant_id=review_assistant_id,
+                                   user_id=user_id))
 
         # 3. 커밋
         commit()
 
-        return assistant_id
+        return chat_assistant_id
     except Exception as e:
 
         rollback()
@@ -82,7 +85,7 @@ async def show_dialogue(request: Request,
         user_id = user_info['result']['id']
 
         # 1. user_id로 assistant_id 조회
-        assistant = get_assistant(user_id)
+        assistant = get_chat_assistant(user_id)
 
         # 2. lesson_schedule_id로 thread 조회
         thread = get_thread(lesson_schedule_id)
@@ -119,7 +122,7 @@ async def create_page(request: Request,
         user_id = user_info['result']['id']
 
         # 1. user_id로 assistant 조회
-        assistant = get_assistant(user_id)
+        assistant = get_chat_assistant(user_id)
         print(assistant)
 
         # 2. 새 스레드 생성
@@ -176,7 +179,7 @@ async def send_message(request: Request,
         user_id = user_info['result']['id']
 
         # 1. user_id로 assistant 조회
-        assistant = get_assistant(user_id)
+        assistant = get_chat_assistant(user_id)
         print(assistant)
 
         # 2. 활성된 thread 조회
