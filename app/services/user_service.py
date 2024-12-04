@@ -27,3 +27,17 @@ class UserService:
             return response.json()
         except requests.exceptions.RequestException as e:
             raise HTTPException(status_code=500, detail=str(e))
+
+    @staticmethod
+    def get_user_id(token: str):
+        if not token:
+            raise HTTPException(status_code=401, detail="Authorization header missing")
+        try:
+            # UserService를 사용해 사용자 정보 가져오기
+            user_info = UserService.get_user_info(token)
+
+            # 사용자 id 추출
+            user_id = user_info['result']['id']
+            return user_id
+        except Exception as e :
+            raise HTTPException(status_code=500, detail=str(e))
