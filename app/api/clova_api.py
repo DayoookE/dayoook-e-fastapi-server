@@ -20,8 +20,9 @@ class Dialogues(BaseModel):
     content: List[Dialogue]
 
 
-@router.post("/transcription", response_model=Dialogues)
+@router.post("/{lesson_schedule_id}/transcription", response_model=Dialogues)
 async def make_dialogue(url: str,
+                        lesson_schedule_id : int,
                         service: ClovaService = Depends()):
     response = await service.speech_to_text(url)
     segments = response["segments"]
