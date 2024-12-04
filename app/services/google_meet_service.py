@@ -5,6 +5,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from datetime import datetime, timedelta
 import os
+import pickle
 import logging
 
 logger = logging.getLogger(__name__)
@@ -19,21 +20,29 @@ class GoogleMeetService:
     def __init__(self):
         self.creds = None
         self.service = None
+        self.token_path = 'token.pickle'  # pickle로 토큰 저장
 
     async def get_credentials(self):
-        if os.path.exists('token.json'):
-            self.creds = Credentials.from_authorized_user_file('token.json', self.SCOPES)
+        # 기존 토큰이 있는지 확인
+        if os.path.exists(self.token_path):
+            with open(self.token_path, 'rb') as token:
+                self.creds = pickle.load(token)
 
+        # 토큰이 없거나 만료된 경우
         if not self.creds or not self.creds.valid:
             if self.creds and self.creds.expired and self.creds.refresh_token:
                 self.creds.refresh(Request())
             else:
+                # credentials.json에서 클라이언트 설정 로드
                 flow = InstalledAppFlow.from_client_secrets_file(
-                    'credentials.json', self.SCOPES)
+                    'credentials.json',
+                    self.SCOPES
+                )
                 self.creds = flow.run_local_server(port=0)
 
-            with open('token.json', 'w') as token:
-                token.write(self.creds.to_json())
+            # 새로운 토큰 저장
+            with open(self.token_path, 'wb') as token:
+                pickle.dump(self.creds, token)
 
         self.service = build('calendar', 'v3', credentials=self.creds)
         return self.creds
