@@ -26,5 +26,6 @@ def get_thread(id: str):
     return session.query(Thread).filter(Thread.id == id).first()
 
 
-def get_thread(lesson_schedule_id: int):
-    return session.query(Thread).filter(Thread.lesson_schedule_id == lesson_schedule_id).first()
+def get_thread(assistant_id: int, lesson_schedule_id: int):
+    return session.query(Thread).filter(Thread.lesson_schedule_id == lesson_schedule_id,
+                                        Thread.assistant_id == assistant_id).first()
