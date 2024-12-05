@@ -13,3 +13,9 @@ pydantic
 python-dotenv
 python-multipart
 PyJWT
+soundfile
+librosa
+nlptutti
+transformers
+tf-keras
+g2pk
