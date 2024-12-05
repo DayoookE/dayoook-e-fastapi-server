@@ -84,7 +84,7 @@ class TutorRecommendResultSchema(BaseModel):
         }
 
 
-class SpeechFeedbackSchema(BaseModel):
+class PronunciationFeedbackSchema(BaseModel):
     predicted: str = Field(..., description="인식된 발음")
     ground_truth: str = Field(..., description="정답 발음 텍스트")
     confidence: float = Field(..., description="발음 인식 신뢰도")
