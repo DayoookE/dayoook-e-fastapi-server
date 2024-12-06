@@ -23,7 +23,7 @@ class TutorRecommendResultSchema(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "result": [
+                "recommends": [
                     {
                         "tutor_id": "Tutor0436",
                         "score": 0.9924999999999999,
@@ -80,5 +80,24 @@ class TutorRecommendResultSchema(BaseModel):
                         }
                     }
                 ]
+            }
+        }
+
+
+class PronunciationFeedbackSchema(BaseModel):
+    predicted: str = Field(..., description="인식된 발음")
+    ground_truth: str = Field(..., description="정답 발음 텍스트")
+    confidence: float = Field(..., description="발음 인식 신뢰도")
+    feedback: str = Field(..., description="발음 피드백")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "result": {
+                    'predicted': '인식된 발음',
+                    'ground_truth': '정답 발음 텍스트',
+                    'confidence': 0.85,
+                    'feedback': '피드백 메시지'
+                }
             }
         }

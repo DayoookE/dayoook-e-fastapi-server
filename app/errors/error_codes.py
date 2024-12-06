@@ -13,6 +13,9 @@ class ErrorCode(Enum):
     # 사용자 관련 오류
     USER_INVALID = (status.HTTP_400_BAD_REQUEST, "ERR_USER_4000", "올바르지 않은 아이디입니다.")
 
+
+    INTERNAL_SERVER_ERROR = (status.HTTP_500_INTERNAL_SERVER_ERROR, "ERR_SERVER_5000", "Internal Server Error")
+
     def __init__(self, http_status: int, code: str, message: str):
         self.http_status = http_status
         self.code = code
