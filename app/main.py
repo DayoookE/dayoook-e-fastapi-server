@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api import google_meet_api, welfare_api, chat_gpt_api
 from app.database.model.common import create_db_and_tables
+from app.s3 import connection
 
 app = FastAPI(title="Dayook API")
 
@@ -18,6 +19,7 @@ app.add_middleware(
 app.include_router(google_meet_api.router)
 app.include_router(welfare_api.router)
 app.include_router(chat_gpt_api.router)
+app.include_router(connection.router)
 
 @app.get("/health")
 async def health_check():
