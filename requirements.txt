@@ -19,3 +19,4 @@ nlptutti
 transformers
 tf-keras
 g2pk
+loguru

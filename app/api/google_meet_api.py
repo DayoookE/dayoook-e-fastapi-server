@@ -11,6 +11,7 @@ router = APIRouter(prefix="/api/meet", tags=["meet"])
 
 class CreateMeetingRequest(BaseModel):
     tutor_email: str
+    tutee_email: str
 
 
 class MeetingResponse(BaseModel):
@@ -35,7 +36,7 @@ async def create_meeting(
         user_id = user_info['result']['id']
         user_role = user_info['result']['role']
 
-        meeting = await service.create_meeting(meeting_request.tutor_email)
+        meeting = await service.create_meeting(meeting_request.tutor_email, meeting_request.tutee_email)
 
         return MeetingResponse(
             meeting_uri=meeting["meeting_uri"],
