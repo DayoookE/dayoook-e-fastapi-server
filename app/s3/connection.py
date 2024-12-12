@@ -24,7 +24,9 @@ def upload_to_s3(file: io.BytesIO, bucket_name: str, object_name: str):
         object_name,
     )
 
+    return f"https://{bucket_name}.s3.ap-northeast-2.amazonaws.com/{object_name}"
+
 
 def download_from_s3(url: str):
     response = requests.get(url)
-    return io.BytesIO(response.content)
+    return response.content

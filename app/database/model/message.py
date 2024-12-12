@@ -13,7 +13,7 @@ class Message(SQLModel, table=True):
     thread_id: str = Field(foreign_key="thread_tb.id")
     question: str = Field(default=None)
     answer: str = Field(default=None)
-    created_at: datetime = Field(default=None)
+    created_at: datetime = Field(default=datetime.now())
 
     thread: Optional["Thread"] = Relationship(back_populates="messages")
 

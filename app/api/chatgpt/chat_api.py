@@ -1,13 +1,17 @@
+import uuid
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, Request, UploadFile, HTTPException
 from openai import BaseModel
 
+from app.api.chatgpt.converter import bytesio_to_uploadfile
 from app.database.model.assistant import *
 from app.database.common import *
+from app.database.model.lesson_schedule import get_lesson_schedule
 from app.database.model.message import *
 from app.database.model.thread import *
 from app.database.model.user import *
+from app.s3.connection import download_from_s3
 from app.services.chat_gpt_service import ChatGptService
 from app.services.user_service import UserService
 from app.utils.security import get_current_user
@@ -39,6 +43,12 @@ async def create_new_assistant(request: Request,
         token = request.headers.get("Authorization")
         user_id = user_service.get_user_id(token)
 
+        # 0. db에 유저 등록
+        current_user = get_user(user_id)
+        if current_user is None:
+            create_user(User(id=user_id))
+            current_user = get_user(user_id)
+
         # 1. 새로운 어시스턴트 생성
         chat_assistant_id = await chat_service.create_chat_assistant()
 
@@ -47,15 +57,14 @@ async def create_new_assistant(request: Request,
                                    user_id=user_id,
                                    role="chat"))
         # 3. 유저에 어시스턴트 등록
-        merge_user(User(id=user_id,
-                        chat_assistant_id=chat_assistant_id))
+        current_user.chat_assistant_id = chat_assistant_id
+        merge_user(current_user)
 
         # 3. 커밋
         commit()
 
         return user_id
     except Exception as e:
-
         rollback()
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -63,36 +72,38 @@ async def create_new_assistant(request: Request,
 # 챗봇 생성
 @router.post("/{lesson_schedule_id}")
 async def create_chat(lesson_schedule_id: int,
-                file: UploadFile,
-                request: Request,
-                chat_service: ChatGptService = Depends(),
-                user_service: UserService = Depends(),
-                email: str = Depends(get_current_user)):
+                      request: Request,
+                      chat_service: ChatGptService = Depends(),
+                      user_service: UserService = Depends(),
+                      email: str = Depends(get_current_user)):
     try:
         token = request.headers.get("Authorization")
         user_id = user_service.get_user_id(token)
 
-        chat_assistant_id = get_assistant_by_userid_and_role(user_id, "chat")
+        chat_assistant = get_assistant_by_userid_and_role(user_id, "chat")
 
-        new_thread = await chat_service.create_thread()
+        new_thread_id = await chat_service.create_thread()
 
-        new_vector_store = await chat_service.create_vector_store()
+        new_vector_store_id = await chat_service.create_vector_store()
 
-        new_file = await chat_service.create_file(file)
+        find_lesson_schedule = get_lesson_schedule(lesson_schedule_id, user_id)
 
-        await chat_service.attach_file_to_vector_store(new_file.id, new_vector_store.id)
+        script_file_bytes = download_from_s3(find_lesson_schedule.dialogue_url)
+        script_file = bytesio_to_uploadfile(script_file_bytes, str(uuid.uuid4()) + ".txt")
+        new_file_id = await chat_service.create_file(script_file)
 
-        await chat_service.attach_vector_store_to_thread(new_thread.id, new_vector_store.id)
+        await chat_service.attach_file_to_vector_store(new_file_id, new_vector_store_id)
 
-        create_thread(Thread(id=new_thread.id,
+        await chat_service.attach_vector_store_to_thread(new_thread_id, new_vector_store_id)
+
+        create_thread(Thread(id=new_thread_id,
                              lesson_schedule_id=lesson_schedule_id,
-                             assistant_id=chat_assistant_id,
-                             vector_store_id=new_vector_store.id))
+                             assistant_id=chat_assistant.id,
+                             vector_store_id=new_vector_store_id))
 
         commit()
 
-        return new_thread.id
-
+        return new_thread_id
     except Exception as e:
         rollback()
         raise HTTPException(status_code=500, detail=str(e))
