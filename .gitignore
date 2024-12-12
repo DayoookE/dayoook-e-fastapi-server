@@ -3,8 +3,8 @@ token.json
 service-account.json
 .idea
 .env
+venv
 token.pickle
-
 venv
 
 #uploaded file
