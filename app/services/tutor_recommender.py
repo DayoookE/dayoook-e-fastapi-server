@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 from typing import List, Dict
 
+from app.schemas.models import TutorRecommendRequest
+
 
 class TutorRecommender:
     def __init__(self, tutors_df: pd.DataFrame):
@@ -56,27 +58,27 @@ class TutorRecommender:
         """평점 정규화 (1-5점 scale)"""
         return (rating - 1) / 4
 
-    def get_recommendations(self, Tut, top_n: int = 5) -> List[Dict]:
-
+    def get_recommendations(self, request: TutorRecommendRequest, top_n: int = 5) -> List[Dict]:
         recommendations = []
+
         for _, tutor in self.tutors.iterrows():
             # 각 매칭 요소별 점수 계산
-            language_score = self._calculate_language_score(tutor['구사 언어'], language)
+            language_score = self._calculate_language_score(tutor['구사 언어'], request.language)
             time_score = self._calculate_time_score(
                 tutor['선호시간'], tutor['선호요일'],
-                preferred_time, preferred_day
+                request.preferred_time, request.preferred_day
             )
-            level_score = self._calculate_level_score(tutor['한국어수준'], level)
+            level_score = self._calculate_level_score(tutor['한국어수준'], request.level)
             rating_score = self._normalize_rating(float(tutor['평점']))
-            gender_score = 1.0 if tutor['성별'] == gender else 0.5
+            gender_score = 1.0 if tutor['성별'] == request.gender else 0.5
 
             # 최종 점수 계산
             total_score = (
-                    self.weights['language_match'] * language_score +
-                    self.weights['time_match'] * time_score +
-                    self.weights['level_match'] * level_score +
-                    self.weights['rating'] * rating_score +
-                    self.weights['gender_match'] * gender_score
+                self.weights['language_match'] * language_score +
+                self.weights['time_match'] * time_score +
+                self.weights['level_match'] * level_score +
+                self.weights['rating'] * rating_score +
+                self.weights['gender_match'] * gender_score
             )
 
             recommendations.append({
