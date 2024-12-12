@@ -8,3 +8,5 @@ venv
 
 #uploaded file
 uploads
+
+__pycache__
