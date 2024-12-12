@@ -22,9 +22,7 @@ from app.utils.security import get_current_user
 router = APIRouter(prefix="/api/ai", tags=["AI"])
 FILE: Optional[str] = None
 tutor_df_path: Optional[str] = None
-tutee_df_path: Optional[str] = None
 tutors_df: Optional[DataFrame] = None
-tutees_df: Optional[DataFrame] = None
 recommender: Optional[TutorRecommender] = None
 assessor: Optional[PronunciationAssessor] = None
 gpt_feedback: Optional[GPTFeedback] = None
@@ -36,7 +34,7 @@ def get_assessor():
 
 async def init_ai_api():
     global FILE
-    global tutor_df_path, tutee_df_path, tutors_df, tutees_df
+    global tutor_df_path, tutors_df
     global recommender, assessor, gpt_feedback
 
     load_dotenv()
@@ -44,9 +42,7 @@ async def init_ai_api():
     OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
     tutor_df_path = os.path.join(FILE, 'static', "tutor.csv")
-    tutee_df_path = os.path.join(FILE, 'static', "tutee.csv")
     tutors_df = pd.read_csv(tutor_df_path, header=None)
-    tutees_df = pd.read_csv(tutee_df_path, header=None)
     recommender = TutorRecommender(tutors_df, tutees_df)
     # assessor = PronunciationAssessor(model_path="/path/to/model", confidence_threshold=0.7)
     assessor = PronunciationAssessor(confidence_threshold=0.7)
@@ -54,7 +50,7 @@ async def init_ai_api():
 
 
 @router.get("/recommend/{student_id}", response_model=TutorRecommendResultSchema)
-async def recommend(student_id: int):
+async def recommend(tutee_id: ):
     recommendations = recommender.get_recommendations(student_id, top_n=5)
     results = []
     for rank, rec in enumerate(recommendations, 1):

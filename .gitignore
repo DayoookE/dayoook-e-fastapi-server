@@ -5,5 +5,10 @@ service-account.json
 .env
 venv
 token.pickle
+venv
 
-__pycache__
+#uploaded file
+uploads
+
+__pycache__/
+*.pyc
