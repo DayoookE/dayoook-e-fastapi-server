@@ -3,4 +3,7 @@ token.json
 service-account.json
 .idea
 .env
+venv
 token.pickle
+
+__pycache__
