@@ -4,16 +4,12 @@ from typing import List, Dict
 
 
 class TutorRecommender:
-    def __init__(self, tutors_df: pd.DataFrame, tutees_df: pd.DataFrame):
+    def __init__(self, tutors_df: pd.DataFrame):
         # 칼럼명 지정
         tutor_columns = ['ID', '튜터ID', '나이', '성별', '구사 언어', '평점', '한국어수준', '선호요일', '선호시간']
-        tutee_columns = ['ID', '튜티ID', '나이', '성별', '구사언어', '한국어수준', '선호요일', '선호시간']
 
         self.tutors = tutors_df
         self.tutors.columns = tutor_columns
-
-        self.tutees = tutees_df
-        self.tutees.columns = tutee_columns
 
         # 가중치 설정
         self.weights = {
@@ -60,20 +56,19 @@ class TutorRecommender:
         """평점 정규화 (1-5점 scale)"""
         return (rating - 1) / 4
 
-    def get_recommendations(self, tutee_id: int, top_n: int = 5) -> List[Dict]:
-        tutee = self.tutees[self.tutees['ID'] == tutee_id].iloc[0]
+    def get_recommendations(self, Tut, top_n: int = 5) -> List[Dict]:
 
         recommendations = []
         for _, tutor in self.tutors.iterrows():
             # 각 매칭 요소별 점수 계산
-            language_score = self._calculate_language_score(tutor['구사 언어'], tutee['구사언어'])
+            language_score = self._calculate_language_score(tutor['구사 언어'], language)
             time_score = self._calculate_time_score(
                 tutor['선호시간'], tutor['선호요일'],
-                tutee['선호시간'], tutee['선호요일']
+                preferred_time, preferred_day
             )
-            level_score = self._calculate_level_score(tutor['한국어수준'], tutee['한국어수준'])
+            level_score = self._calculate_level_score(tutor['한국어수준'], level)
             rating_score = self._normalize_rating(float(tutor['평점']))
-            gender_score = 1.0 if tutor['성별'] == tutee['성별'] else 0.5
+            gender_score = 1.0 if tutor['성별'] == gender else 0.5
 
             # 최종 점수 계산
             total_score = (

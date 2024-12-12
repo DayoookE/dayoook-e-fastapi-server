@@ -20,3 +20,7 @@ transformers
 tf-keras
 g2pk
 loguru
+sqlalchemy
+pymysql
+boto3
+wheel

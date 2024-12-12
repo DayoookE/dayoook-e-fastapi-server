@@ -4,3 +4,11 @@ service-account.json
 .idea
 .env
 token.pickle
+
+venv
+
+#uploaded file
+uploads
+
+__pycache__/
+*.pyc
