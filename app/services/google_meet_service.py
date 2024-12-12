@@ -10,7 +10,6 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-
 class GoogleMeetService:
     SCOPES = [
         'https://www.googleapis.com/auth/calendar',
@@ -20,34 +19,30 @@ class GoogleMeetService:
     def __init__(self):
         self.creds = None
         self.service = None
-        self.token_path = 'token.pickle'  # pickle로 토큰 저장
+        self.token_path = 'token.pickle'
 
     async def get_credentials(self):
-        # 기존 토큰이 있는지 확인
         if os.path.exists(self.token_path):
             with open(self.token_path, 'rb') as token:
                 self.creds = pickle.load(token)
 
-        # 토큰이 없거나 만료된 경우
         if not self.creds or not self.creds.valid:
             if self.creds and self.creds.expired and self.creds.refresh_token:
                 self.creds.refresh(Request())
             else:
-                # credentials.json에서 클라이언트 설정 로드
                 flow = InstalledAppFlow.from_client_secrets_file(
                     'credentials.json',
                     self.SCOPES
                 )
                 self.creds = flow.run_local_server(port=0)
 
-            # 새로운 토큰 저장
             with open(self.token_path, 'wb') as token:
                 pickle.dump(self.creds, token)
 
         self.service = build('calendar', 'v3', credentials=self.creds)
         return self.creds
 
-    async def create_meeting(self, tutor_email: str):
+    async def create_meeting(self, tutor_email: str, tutee_email: str):
         try:
             credentials = await self.get_credentials()
 
@@ -55,8 +50,8 @@ class GoogleMeetService:
             end_time = start_time + timedelta(hours=1)
 
             event = {
-                'summary': '튜터링 세션',
-                'description': '1:1 튜터링 세션\n\n* 튜터님은 미팅 참여 후 "호스트 권한 요청"을 클릭하여 공동 호스트 권한을 얻을 수 있습니다.',
+                'summary': '다육이 1:1 튜터링',
+                'description': '다육이 1:1 튜터링',
                 'start': {
                     'dateTime': start_time.isoformat(),
                     'timeZone': 'Asia/Seoul',
@@ -70,20 +65,32 @@ class GoogleMeetService:
                         'requestId': f'meeting_{hash(datetime.now())}',
                         'conferenceSolutionKey': {
                             'type': 'hangoutsMeet'
+                        },
+                        'requestedSettings': {
+                            'participantMicrophoneState': 'ENABLED',
+                            'participantCameraState': 'ENABLED'
                         }
                     }
                 },
                 'attendees': [
-                    {
-                        'email': tutor_email,
-                        'responseStatus': 'accepted'
-                    }
+                {
+                    'email': tutor_email,
+                    'responseStatus': 'accepted'
+                },
+                {
+                    'email': tutee_email,  # 튜티 이메일 추가
+                    'responseStatus': 'accepted'
+                }
                 ],
                 'guestsCanModify': True,
                 'guestsCanInviteOthers': True,
-                'anyoneCanAddSelf': False
+                'anyoneCanAddSelf': True,
+                'reminders': {
+                    'useDefault': False
+                }
             }
 
+            # 먼저 이벤트 생성
             event = self.service.events().insert(
                 calendarId='primary',
                 body=event,
@@ -91,12 +98,42 @@ class GoogleMeetService:
                 sendUpdates='all'
             ).execute()
 
-            conference_data = event.get('conferenceData', {})
+            # 이벤트 ID 가져오기
+            event_id = event['id']
+
+            # 튜터에게 공동 호스트 권한 부여를 위한 이벤트 패치
+            patch_body = {
+                'conferenceData': {
+                    'conferenceSolution': {
+                        'key': {
+                            'type': 'hangoutsMeet'
+                        }
+                    },
+                    'parameters': {
+                        'allowExternalGuests': True,
+                        'joinModeSettings': {
+                            'allowJoinBeforeHost': True,
+                            'moderators': [tutor_email]
+                        }
+                    }
+                }
+            }
+
+            # 이벤트 업데이트
+            updated_event = self.service.events().patch(
+                calendarId='primary',
+                eventId=event_id,
+                body=patch_body,
+                conferenceDataVersion=1,
+                sendUpdates='all'
+            ).execute()
+
+            conference_data = updated_event.get('conferenceData', {})
             meet_link = conference_data.get('entryPoints', [{}])[0].get('uri', '')
 
             return {
                 "meeting_uri": meet_link,
-                "event_id": event['id']
+                "event_id": event_id
             }
 
         except Exception as e:
