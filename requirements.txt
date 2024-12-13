@@ -18,7 +18,7 @@ librosa
 nlptutti
 transformers
 tf-keras
-g2pk
+g2pk2
 loguru
 sqlalchemy
 pymysql
