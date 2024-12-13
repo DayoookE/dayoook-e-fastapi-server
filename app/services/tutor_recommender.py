@@ -8,7 +8,7 @@ from app.schemas.models import TutorRecommendRequest
 class TutorRecommender:
     def __init__(self, tutors_df: pd.DataFrame):
         # 칼럼명 지정
-        tutor_columns = ['ID', '튜터ID', '나이', '성별', '구사 언어', '평점', '한국어수준', '선호요일', '선호시간']
+        tutor_columns = ['ID', '튜터명', '나이', '성별', '구사 언어', '한국어수준', '평점', '선호요일', '선호시간']
 
         self.tutors = tutors_df
         self.tutors.columns = tutor_columns
@@ -46,9 +46,10 @@ class TutorRecommender:
 
     def _calculate_level_score(self, tutor_level: str, tutee_level: str) -> float:
         """수준 매칭 점수 계산"""
-        level_map = {'초급': 1, '중급': 2, '고급': 3}
-        tutor_level_num = level_map[tutor_level]
-        tutee_level_num = level_map[tutee_level]
+        tutor_level_map = {'BEGINNER': 1, 'INTERMEDIATE': 2, 'ADVANCE': 3}
+        tutee_level_map = {'초급': 1, '중급': 2, '고급': 3}
+        tutor_level_num = tutor_level_map[tutor_level]
+        tutee_level_num = tutee_level_map[tutee_level]
 
         if tutor_level_num >= tutee_level_num:
             return 1.0
@@ -74,15 +75,16 @@ class TutorRecommender:
 
             # 최종 점수 계산
             total_score = (
-                self.weights['language_match'] * language_score +
-                self.weights['time_match'] * time_score +
-                self.weights['level_match'] * level_score +
-                self.weights['rating'] * rating_score +
-                self.weights['gender_match'] * gender_score
+                    self.weights['language_match'] * language_score +
+                    self.weights['time_match'] * time_score +
+                    self.weights['level_match'] * level_score +
+                    self.weights['rating'] * rating_score +
+                    self.weights['gender_match'] * gender_score
             )
 
             recommendations.append({
                 'tutor_id': tutor['ID'],
+                'tutor': tutor['튜터명'],
                 'score': total_score,
                 'matching_details': {
                     'language_match': language_score,

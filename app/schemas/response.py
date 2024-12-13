@@ -12,7 +12,8 @@ class TutorMatchingDetails(BaseModel):
 
 
 class TutorRecommendSchema(BaseModel):
-    tutor_id: str = Field(..., description="튜터 id")
+    tutor_id: str = Field(..., description="튜터 ID")
+    tutor: str = Field(..., description="튜터명")
     score: float = Field(..., description="매칭 점수")
     matching_details: TutorMatchingDetails = Field(..., description="종합 점수")
 
@@ -25,7 +26,8 @@ class TutorRecommendResultSchema(BaseModel):
             "example": {
                 "recommends": [
                     {
-                        "tutor_id": "Tutor0436",
+                        'tutor_id': "1140",
+                        "tutor": "Tutor1140",
                         "score": 0.9924999999999999,
                         "matching_details": {
                             "language_match": 1,
@@ -36,7 +38,8 @@ class TutorRecommendResultSchema(BaseModel):
                         }
                     },
                     {
-                        "tutor_id": "Tutor0797",
+                        "tutor_id": "0797",
+                        "tutor": "Tutor0797",
                         "score": 0.98875,
                         "matching_details": {
                             "language_match": 1,
@@ -47,7 +50,8 @@ class TutorRecommendResultSchema(BaseModel):
                         }
                     },
                     {
-                        "tutor_id": "Tutor0248",
+                        "tutor_id": "0248",
+                        "tutor": "Tutor0248",
                         "score": 0.985,
                         "matching_details": {
                             "language_match": 1,
@@ -58,7 +62,8 @@ class TutorRecommendResultSchema(BaseModel):
                         }
                     },
                     {
-                        "tutor_id": "Tutor0291",
+                        "tutor_id": "0291",
+                        "tutor": "Tutor0291",
                         "score": 0.985,
                         "matching_details": {
                             "language_match": 1,
@@ -69,7 +74,8 @@ class TutorRecommendResultSchema(BaseModel):
                         }
                     },
                     {
-                        "tutor_id": "Tutor0545",
+                        "tutor_id": "0545",
+                        "tutor": "Tutor0545",
                         "score": 0.9774999999999999,
                         "matching_details": {
                             "language_match": 1,
