@@ -1,5 +1,6 @@
 from typing import List, Optional
 
+from sqlalchemy import String
 from sqlmodel import SQLModel, Field, Relationship
 
 from app.database.connection import session
@@ -11,7 +12,7 @@ class LessonSchedule(SQLModel, table=True):
     id: str = Field(primary_key=True)
     audio_url: str = Field(nullable=True, default=None)
     dialogue_url: str = Field(nullable=True, default=None)
-    review: str = Field(nullable=True, default=None)
+    review: str = Field(nullable=True, default=None, sa_type=String(10000))
     review_completed: bool = Field(nullable=False, default=False)
     user_id: int = Field(foreign_key="user_tb.id")
 
