@@ -123,10 +123,10 @@ async def show_dialogue(lesson_schedule_id: int,
         chat_assistant = get_assistant_by_userid_and_role(user_id, "chat")
 
         # 2. assistant_id와 lesson_schedule_id로 thread 조회
-        thread = get_thread(chat_assistant.id, lesson_schedule_id)
+        find_thread = get_thread(chat_assistant.id, lesson_schedule_id)
 
         # 3. 스레드에 등록된 모든 메시지 가져오기
-        messages = get_messages_by_thread_id(thread.id)
+        messages = get_messages_by_thread_id(find_thread.id)
 
         # 4. messages -> List[MessageResponse]
         message_responses = [MessageResponse(question=m.question, answer=m.answer,
@@ -143,7 +143,7 @@ async def show_dialogue(lesson_schedule_id: int,
 @router.post("/{lesson_schedule_id}/message", response_model=MessageResponse)
 async def send_message(lesson_schedule_id: int,
                        request: Request,
-                       message: MessageRequest,
+                       new_message: MessageRequest,
                        chat_service: ChatGptService = Depends(),
                        user_service: UserService = Depends(),
                        email: str = Depends(get_current_user)):
@@ -155,22 +155,22 @@ async def send_message(lesson_schedule_id: int,
         chat_assistant = get_assistant_by_userid_and_role(user_id, "chat")
 
         # 2. 활성된 thread 조회
-        thread = get_thread(chat_assistant.id, lesson_schedule_id)
+        find_thread = get_thread(chat_assistant.id, lesson_schedule_id)
 
         # 3. 메시지 생성
-        message_id = await chat_service.create_message(thread.id, message.content)
+        message_id = await chat_service.create_message(find_thread.id, new_message.content)
 
         # 4. run
-        answer = await chat_service.create_run(thread.id, chat_assistant.id)
+        answer = await chat_service.create_run(find_thread.id, chat_assistant.id)
 
         # 5. db에 메시지 저장
-        create_message(Message(id=message_id, question=message.content, answer=answer, thread_id=thread.id))
+        create_message(Message(id=message_id, question=new_message.content, answer=answer, thread_id=find_thread.id))
 
         # 6. 커밋
         commit()
 
         return MessageResponse(
-            question=message.question,
+            question=new_message.content,
             answer=answer,
             created_at=get_message(message_id).created_at
         )

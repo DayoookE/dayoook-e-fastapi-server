@@ -9,7 +9,7 @@ from openai import BaseModel
 from app.api.chatgpt.converter import bytesio_to_uploadfile
 from app.database.model.assistant import *
 from app.database.common import *
-from app.database.model.lesson_schedule import get_lesson_schedule
+from app.database.model.lesson_schedule import get_lesson_schedule, get_lesson_schedules
 from app.database.model.message import *
 from app.database.model.thread import *
 from app.database.model.user import *
@@ -96,7 +96,7 @@ async def create_review(lesson_schedule_id: int,
         find_lesson_schedule = get_lesson_schedule(lesson_schedule_id, user_id)
         file_bytes = download_from_s3(find_lesson_schedule.dialogue_url)
 
-        new_file = bytesio_to_uploadfile(file_bytes, str(uuid.uuid4())+".txt")
+        new_file = bytesio_to_uploadfile(file_bytes, str(uuid.uuid4()) + ".txt")
         new_file_id = await chat_service.create_file(new_file)
 
         await chat_service.attach_file_to_vector_store(new_file_id, new_vector_store_id)
@@ -112,7 +112,7 @@ async def create_review(lesson_schedule_id: int,
 
         review = await chat_service.create_run(new_thread_id, find_assistant.id)
 
-        find_lesson_schedule.review_url = review
+        find_lesson_schedule.review = review
 
         commit()
 
@@ -138,7 +138,7 @@ async def view_review(lesson_schedule_id: int,
         print(user_id, lesson_schedule_id, find_lesson_schedule)
 
         # 2. 수업일정의 복습자료 조회
-        review = find_lesson_schedule.review_url
+        review = find_lesson_schedule.review
 
         return ReviewResponse(
             content=review
@@ -147,3 +147,51 @@ async def view_review(lesson_schedule_id: int,
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
+@router.post("/{lesson_schedule_id}/complete")
+async def complete_review(lesson_schedule_id: int,
+                          request: Request,
+                          user_service: UserService = Depends(),
+                          email: str = Depends(get_current_user)):
+    try:
+        token = request.headers.get("Authorization")
+        user_id = user_service.get_user_id(token)
+
+        # 1. user_id와 lesson_schedule_id로 수업일정 조회
+        find_lesson_schedule = get_lesson_schedule(lesson_schedule_id, user_id)
+
+        # 2. 복습 완료 반영
+        find_lesson_schedule.review_completed = True
+
+        # 3. commit
+        commit()
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/rate/{user_id}")
+async def get_review_rate(request: Request,
+                          user_service: UserService = Depends(),
+                          email: str = Depends(get_current_user)):
+    try:
+        token = request.headers.get("Authorization")
+        user_id = user_service.get_user_id(token)
+
+        # 1. user_id로 수업 일정 모두 조회
+        lesson_schedules = get_lesson_schedules(user_id)
+
+        # 2. 완성된 수업 일정 count
+        finished_count = 0
+        finished_count += sum(1 for ls in lesson_schedules if ls.review_completed)
+
+        # 3. 진행된 수업 일정 count
+        schedule_count = len(lesson_schedules)
+
+        # 4. 복습률 계산
+        review_rate = 100 * finished_count // schedule_count
+
+        return review_rate
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

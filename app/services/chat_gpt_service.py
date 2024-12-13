@@ -1,5 +1,7 @@
 import os
+import uuid
 from datetime import datetime
+from tempfile import NamedTemporaryFile
 
 from fastapi import UploadFile
 from openai import OpenAI
@@ -61,14 +63,9 @@ class ChatGptService:
 
     @staticmethod
     async def create_file(file: UploadFile):
-        filename = "{}_{}".format(datetime.now().strftime("%y%m%d%H%M%S"), file.filename)
-
-        content = await file.read()
-        with open(os.path.join(UPLOAD_DIR, filename), "wb") as fp:
-            fp.write(content)
-
-        request = {"file": open(os.path.join(UPLOAD_DIR, filename), "rb"),
+        request = {"file": file.file,
                    "purpose": "assistants"}
+
         response = client.files.create(**request)
         return response.id
 

@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
+from sqlalchemy import String
 from sqlmodel import SQLModel, Field, Relationship
 
 from app.database.connection import session
@@ -9,11 +10,11 @@ from app.database.connection import session
 class Message(SQLModel, table=True):
     __tablename__ = "message_tb"
 
-    message_id: str = Field(primary_key=True)
+    id: str = Field(primary_key=True)
     thread_id: str = Field(foreign_key="thread_tb.id")
-    question: str = Field(default=None)
-    answer: str = Field(default=None)
-    created_at: datetime = Field(default=datetime.now())
+    question: str = Field(default=None, sa_type=String(2000))
+    answer: str = Field(default=None, sa_type=String(2000))
+    created_at: datetime = Field(default_factory=datetime.utcnow)
 
     thread: Optional["Thread"] = Relationship(back_populates="messages")
 
