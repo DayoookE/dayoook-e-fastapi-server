@@ -22,27 +22,24 @@ class TutorRecommender:
             'gender_match': 0.1
         }
 
-    def _calculate_language_score(self, tutor_languages: str, tutee_language: str) -> float:
+    def _calculate_language_score(self, tutor_languages: str, tutee_languages: List[str]) -> float:
         """언어 매칭 점수 계산"""
-        tutor_langs = [lang.strip() for lang in tutor_languages.split(',')]
-        return 1.0 if tutee_language in tutor_langs else 0.0
+        tutor_langs = {lang.strip() for lang in tutor_languages.split(',')}
+        return float(bool(tutor_langs & set(tutee_languages)))
+
+        # return 1.0 if tutee_language in tutor_langs else 0.0
 
     def _calculate_time_score(self, tutor_time: str, tutor_day: str,
-                              tutee_time: str, tutee_day: str) -> float:
+                              tutee_times: List[str], tutee_days: List[str]) -> float:
         """시간대 매칭 점수 계산"""
         # 요일 매칭
-        if tutor_day != tutee_day:
+        if tutor_day not in tutee_days:
             return 0.0
 
-        # 시간대 매칭
-        tutor_times = set(t.strip() for t in tutor_time.split(','))
-        tutee_times = set(t.strip() for t in tutee_time.split(','))
+        tutor_times_set = {t.strip() for t in tutor_time.split(',')}
+        common_times = tutor_times_set & set(tutee_times)
 
-        common_times = tutor_times.intersection(tutee_times)
-        if not common_times:
-            return 0.0
-
-        return len(common_times) / len(tutee_times)
+        return len(common_times) / len(tutee_times) if common_times else 0.0
 
     def _calculate_level_score(self, tutor_level: str, tutee_level: str) -> float:
         """수준 매칭 점수 계산"""

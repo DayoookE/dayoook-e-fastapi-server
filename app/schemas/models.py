@@ -15,8 +15,8 @@ class PronunciationFeedback:
 
 
 class TutorRecommendRequest(BaseModel):
-    language: str = Field(..., description="구사 언어")
-    preferred_time: str = Field(..., description="선호 시간대")
-    preferred_day: str = Field(..., description="선호 요일")
+    language: List[str] = Field(..., description="구사 언어")
+    preferred_time: List[str] = Field(..., description="선호 시간대")
+    preferred_day: List[str] = Field(..., description="선호 요일")
     level: str = Field(..., description="한국어 구사 수준")
     gender: str = Field(..., description="성별")
