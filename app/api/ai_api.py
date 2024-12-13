@@ -56,14 +56,11 @@ async def recommend(request: TutorRecommendRequest):
     results = []
     for rank, rec in enumerate(recommendations, 1):
         tutor = recommender.tutors[recommender.tutors['ID'] == rec['tutor_id']].iloc[0]
-        print(f"\n추천 {rank}순위:")
-        print(f"튜터 ID: {tutor['튜터ID']}")
-        print(f"매칭 점수: {rec['score']:.2f}")
-        print("매칭 상세:")
         tutor_match = TutorMatchingDetails(**rec['matching_details'])
 
         result = TutorRecommendSchema(
-            tutor_id=tutor['튜터ID'],
+            tutor_id=tutor['ID'],
+            tutor=tutor['튜터명'],
             score=rec['score'],
             matching_details=tutor_match
         )
