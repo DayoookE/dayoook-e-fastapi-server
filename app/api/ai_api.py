@@ -79,14 +79,7 @@ async def inference(audio: UploadFile = File(...), reference_text: str = Form(..
         audio_io.seek(0)
 
         # librosa로 바로 BytesIO에서 읽기
-        wav, sr = sf.read(audio_io)
-        # 샘플레이트가 16000Hz가 아닌 경우 리샘플링
-        if sr != 16000:
-            wav = librosa.resample(
-                wav,
-                orig_sr=sr,
-                target_sr=16000
-            )
+        wav, sr = librosa.load(audio_io, sr=16000)
         results = model.predict(wav, reference_text)
         feedback = await gpt_feedback.get_feedback(results, model.confidence_threshold)
         return JSONResponse({
