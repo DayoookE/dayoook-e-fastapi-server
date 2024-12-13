@@ -59,7 +59,7 @@ async def recommend(request: TutorRecommendRequest):
         tutor_match = TutorMatchingDetails(**rec['matching_details'])
 
         result = TutorRecommendSchema(
-            tutor_id=tutor['ID'],
+            tutor_id=str(tutor['ID']),
             tutor=tutor['튜터명'],
             score=rec['score'],
             matching_details=tutor_match

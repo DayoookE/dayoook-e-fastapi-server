@@ -80,7 +80,7 @@ class TutorRecommender:
             )
 
             recommendations.append({
-                'tutor_id': str(tutor['ID']),
+                'tutor_id': tutor['ID'],
                 'tutor': tutor['튜터명'],
                 'score': total_score,
                 'matching_details': {
