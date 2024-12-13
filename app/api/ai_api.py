@@ -40,14 +40,14 @@ async def init_ai_api():
 
     load_dotenv()
     FILE = os.getenv('FILE')
-    OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+    FEEDBACK_OPENAI_API_KEY = os.getenv('FEEDBACK_OPENAI_API_KEY')
 
     tutor_df_path = os.path.join(FILE, 'static', "tutor.csv")
     tutors_df = pd.read_csv(tutor_df_path, header=None)
     recommender = TutorRecommender(tutors_df)
     # assessor = PronunciationAssessor(model_path="/path/to/model", confidence_threshold=0.7)
     assessor = PronunciationAssessor(confidence_threshold=0.7)
-    gpt_feedback = GPTFeedback(OPENAI_API_KEY)
+    gpt_feedback = GPTFeedback(FEEDBACK_OPENAI_API_KEY)
 
 
 @router.post("/recommend/", response_model=TutorRecommendResultSchema)

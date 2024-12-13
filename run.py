@@ -1,6 +1,5 @@
 import sys
 import os
-from multiprocessing import Process
 
 import uvicorn
 
