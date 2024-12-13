@@ -43,7 +43,7 @@ class TutorRecommender:
 
     def _calculate_level_score(self, tutor_level: str, tutee_level: str) -> float:
         """수준 매칭 점수 계산"""
-        tutor_level_map = {'BEGINNER': 1, 'INTERMEDIATE': 2, 'ADVANCE': 3}
+        tutor_level_map = {'BEGINNER': 1, 'INTERMEDIATE': 2, 'ADVANCED': 3}
         tutee_level_map = {'초급': 1, '중급': 2, '고급': 3}
         tutor_level_num = tutor_level_map[tutor_level]
         tutee_level_num = tutee_level_map[tutee_level]
