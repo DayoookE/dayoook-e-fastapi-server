@@ -39,6 +39,14 @@ class MessageRequest(BaseModel):
     content: str
 
 
+class LessonScheduleIdResponse(BaseModel):
+    id: int
+
+
+class LessonScheduleIdListResponse(BaseModel):
+    lesson_schedules: List[LessonScheduleIdResponse]
+
+
 # 리뷰 어시스턴트 생성
 @router.get("/create")
 async def create_new_assistant(request: Request,
@@ -193,6 +201,27 @@ async def get_review_rate(request: Request,
         review_rate = 100 * finished_count // schedule_count
 
         return review_rate
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("", response_model=LessonScheduleIdListResponse)
+async def get_review_rate(request: Request,
+                          user_service: UserService = Depends(),
+                          email: str = Depends(get_current_user)):
+    try:
+        token = request.headers.get("Authorization")
+        user_id = user_service.get_user_id(token)
+
+        # 1. user_id로 수업 일정 모두 조회
+        lesson_schedules = get_lesson_schedules(user_id)
+
+        lesson_schedule_responses = [LessonScheduleIdResponse(id=l.id) for l in lesson_schedules]
+
+        return LessonScheduleIdListResponse(
+            lesson_schedules=lesson_schedule_responses
+        )
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
