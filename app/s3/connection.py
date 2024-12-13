@@ -29,4 +29,4 @@ def upload_to_s3(file: io.BytesIO, bucket_name: str, object_name: str):
 
 def download_from_s3(url: str):
     response = requests.get(url)
-    return response.content
+    return io.BytesIO(response.content)

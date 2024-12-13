@@ -89,8 +89,8 @@ async def create_chat(lesson_schedule_id: int,
         find_lesson_schedule = get_lesson_schedule(lesson_schedule_id, user_id)
 
         script_file_bytes = download_from_s3(find_lesson_schedule.dialogue_url)
-        script_file = bytesio_to_uploadfile(script_file_bytes, str(uuid.uuid4()) + ".txt")
-        new_file_id = await chat_service.create_file(script_file)
+        script_file_bytes.name = str(uuid.uuid4())+".txt"
+        new_file_id = await chat_service.create_file(script_file_bytes)
 
         await chat_service.attach_file_to_vector_store(new_file_id, new_vector_store_id)
 
