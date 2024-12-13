@@ -1,11 +1,10 @@
 import os
 from typing import List, Optional
 import io
-
 import librosa
 import pandas as pd
 from dotenv import load_dotenv
-import soundfile as sf
+
 from fastapi import APIRouter, Depends, UploadFile, Form, File
 from pandas import DataFrame
 from starlette.responses import JSONResponse
