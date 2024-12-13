@@ -1,10 +1,11 @@
 import os
 from typing import List, Optional
 import io
+
 import librosa
 import pandas as pd
 from dotenv import load_dotenv
-
+import soundfile as sf
 from fastapi import APIRouter, Depends, UploadFile, Form, File
 from pandas import DataFrame
 from starlette.responses import JSONResponse
@@ -75,9 +76,17 @@ async def inference(audio: UploadFile = File(...), reference_text: str = Form(..
         # 파일 내용을 바이트로 읽기
         audio_bytes = await audio.read()
         audio_io = io.BytesIO(audio_bytes)
+        audio_io.seek(0)
 
         # librosa로 바로 BytesIO에서 읽기
-        wav, sr = librosa.load(audio_io, sr=16000)
+        wav, sr = sf.read(audio_io)
+        # 샘플레이트가 16000Hz가 아닌 경우 리샘플링
+        if sr != 16000:
+            wav = librosa.resample(
+                wav,
+                orig_sr=sr,
+                target_sr=16000
+            )
         results = model.predict(wav, reference_text)
         feedback = await gpt_feedback.get_feedback(results, model.confidence_threshold)
         return JSONResponse({
