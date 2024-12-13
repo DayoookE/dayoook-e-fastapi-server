@@ -5,7 +5,20 @@ from transformers import Wav2Vec2ForCTC, Wav2Vec2Processor
 import nlptutti as metrics
 import torch.nn.functional as F
 
+from g2pk2 import G2p
 from app.schemas.models import PronunciationFeedback
+import re
+
+g2p = G2p()
+
+
+def clean_text(text):
+    text = re.sub(r'\([^)]*\)', lambda x: re.sub(r'[^가-힣\s]', '', x.group()), text).rstrip() + " "
+    return text.strip()
+
+
+def post_processing(predictions: str):
+    return g2p(clean_text(predictions))
 
 
 class PronunciationAssessor:
@@ -95,7 +108,7 @@ class PronunciationAssessor:
         if reference_text:
             wer, cer = self.compute_error_rates(predicted_text, reference_text)
             return PronunciationFeedback(
-                predicted_text=predicted_text,
+                predicted_text=post_processing(predicted_text),
                 avg_confidence=confidence_data['avg_confidence'],
                 low_confidence_parts=confidence_data['low_confidence_parts'],
                 reference_text=reference_text,
