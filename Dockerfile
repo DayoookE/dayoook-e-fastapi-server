@@ -5,7 +5,8 @@ WORKDIR /server
 # apt-get과 pip install을 하나의 RUN으로 합치고 캐시 정리
 RUN apt-get update -y && \
     apt-get install -y --no-install-recommends && \
-    apt-get install net-tools -y \
+    apt-get install net-tools -y &&  \
+    apt-get install ffmpeg libsndfile1 \
     && rm -rf /var/lib/apt/lists/*
 
 # requirements.txt를 먼저 복사해서 레이어 캐싱 활용
