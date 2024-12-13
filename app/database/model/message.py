@@ -9,7 +9,7 @@ from app.database.connection import session
 class Message(SQLModel, table=True):
     __tablename__ = "message_tb"
 
-    message_id: str = Field(primary_key=True)
+    id: str = Field(primary_key=True)
     thread_id: str = Field(foreign_key="thread_tb.id")
     question: str = Field(default=None)
     answer: str = Field(default=None)
