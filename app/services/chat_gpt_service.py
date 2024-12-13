@@ -1,6 +1,7 @@
 import os
 import uuid
 from datetime import datetime
+from io import BytesIO
 from tempfile import NamedTemporaryFile
 
 from fastapi import UploadFile
@@ -62,8 +63,8 @@ class ChatGptService:
                 return event.data.content[0].text.value
 
     @staticmethod
-    async def create_file(file: UploadFile):
-        request = {"file": file.file,
+    async def create_file(bytes : BytesIO):
+        request = {"file": bytes,
                    "purpose": "assistants"}
 
         response = client.files.create(**request)
