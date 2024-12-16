@@ -14,14 +14,14 @@ class LessonSchedule(SQLModel, table=True):
     dialogue_url: str = Field(nullable=True, default=None)
     review: str = Field(nullable=True, default=None, sa_type=String(10000))
     review_completed: bool = Field(nullable=False, default=False)
-    tutor_id: int = Field(nullable=False, default=None)
+    user_id: int = Field(nullable=False, default=None)
 
     threads: List["Thread"] = Relationship(back_populates="lesson_schedule")
 
 
 def get_lesson_schedule_by_userid(id: int, user_id: int):
     return session.query(LessonSchedule).filter(LessonSchedule.id == id,
-                                                LessonSchedule.tutor_id == user_id).first()
+                                                LessonSchedule.user_id == user_id).first()
 
 
 def get_lesson_schedule(id: int):
@@ -29,7 +29,7 @@ def get_lesson_schedule(id: int):
 
 
 def get_lesson_schedules(user_id: int):
-    return session.query(LessonSchedule).filter(LessonSchedule.tutor_id == user_id).all()
+    return session.query(LessonSchedule).filter(LessonSchedule.user_id == user_id).all()
 
 
 def merge_lesson_schedule(lesson_schedule: LessonSchedule):
