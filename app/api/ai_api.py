@@ -45,8 +45,8 @@ async def init_ai_api():
     tutor_df_path = os.path.join(FILE, 'static', "tutor.csv")
     tutors_df = pd.read_csv(tutor_df_path, header=None)
     recommender = TutorRecommender(tutors_df)
-    # assessor = PronunciationAssessor(model_path="/path/to/model", confidence_threshold=0.7)
-    assessor = PronunciationAssessor(confidence_threshold=0.7)
+    assessor = PronunciationAssessor(model_path="/server/checkpoint-85000", confidence_threshold=0.7)
+    # assessor = PronunciationAssessor(confidence_threshold=0.7)
     gpt_feedback = GPTFeedback(FEEDBACK_OPENAI_API_KEY)
 
 
