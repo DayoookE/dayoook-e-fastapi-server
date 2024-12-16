@@ -16,6 +16,7 @@ from app.database.model.lesson_schedule import get_lesson_schedule, merge_lesson
 from app.s3.connection import download_from_s3, upload_to_s3
 from app.services.clova_service import ClovaService
 from app.services.user_service import UserService
+from app.utils.security import get_current_user
 
 router = APIRouter(prefix="/api/speech", tags=["speech"])
 script_upload_dir = os.getenv("S3_SCRIPT_UPLOAD_DIR")
@@ -36,7 +37,8 @@ class Dialogues(BaseModel):
 async def upload_records(request: Request,
                          file: UploadFile,
                          lesson_schedule_id: str,
-                         user_service: UserService = Depends()):
+                         user_service: UserService = Depends(),
+                         email: str = Depends(get_current_user)):
     try:
         token = request.headers.get("Authorization")
         user_id = user_service.get_user_id(token)
@@ -65,7 +67,8 @@ async def upload_records(request: Request,
 async def make_dialogue(request: Request,
                         lesson_schedule_id: int,
                         user_service: UserService = Depends(),
-                        clova_service: ClovaService = Depends()):
+                        clova_service: ClovaService = Depends(),
+                        email: str = Depends(get_current_user)):
     try:
         token = request.headers.get("Authorization")
         user_id = user_service.get_user_id(token)
