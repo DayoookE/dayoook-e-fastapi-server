@@ -12,6 +12,16 @@ import re
 g2p = G2p()
 
 
+def clean_special_tokens(text):
+    # 특수 토큰 제거
+    special_tokens = ['[PAD]', '[UNK]', '[CLS]', '[SEP]', '|']
+    for token in special_tokens:
+        text = text.replace(token, '')
+    # 연속된 공백 제거
+    text = re.sub(r'\s+', ' ', text)
+    return text.strip()
+
+
 def clean_text(text):
     text = re.sub(r'\([^)]*\)', lambda x: re.sub(r'[^가-힣\s]', '', x.group()), text).rstrip() + " "
     return text.strip()
@@ -102,7 +112,7 @@ class PronunciationAssessor:
         outputs = self.model(input_values)
         logits = outputs.logits
         confidence_data = self.get_confidence_and_predictions(logits)
-        predicted_text = self.processor.batch_decode(confidence_data['predicted_ids'])[0]
+        predicted_text = clean_special_tokens(self.processor.batch_decode(confidence_data['predicted_ids'])[0])
 
         # 참조 텍스트가 있는 경우 오류율 계산
         if reference_text:
