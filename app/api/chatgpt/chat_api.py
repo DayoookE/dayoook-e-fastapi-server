@@ -81,6 +81,7 @@ async def create_chat(lesson_schedule_id: int,
         user_id = user_service.get_user_id(token)
 
         chat_assistant = get_assistant_by_role("chat")
+        print(chat_assistant)
 
         new_thread_id = await chat_service.create_thread()
 

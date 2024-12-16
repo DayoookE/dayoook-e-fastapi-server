@@ -15,7 +15,7 @@ class Assistant(SQLModel, table=True):
 
 
 def get_assistant_by_role(role: str):
-    return session.query(Assistant).filter(Assistant.role == role.strip()).first()
+    return session.query(Assistant).filter(Assistant.role == role).first()
 
 
 def create_assistant(assistant: Assistant):
