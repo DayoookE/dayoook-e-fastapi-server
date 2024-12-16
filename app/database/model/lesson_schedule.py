@@ -14,18 +14,23 @@ class LessonSchedule(SQLModel, table=True):
     dialogue_url: str = Field(nullable=True, default=None)
     review: str = Field(nullable=True, default=None, sa_type=String(10000))
     review_completed: bool = Field(nullable=False, default=False)
-    user_id: int = Field(foreign_key="user_tb.id")
+    tutor_id: int = Field(nullable=False, default=None)
 
-    user: Optional["User"] = Relationship(back_populates="lesson_schedules")
     threads: List["Thread"] = Relationship(back_populates="lesson_schedule")
 
 
-def get_lesson_schedule(id: int, user_id: int):
+def get_lesson_schedule_by_userid(id: int, user_id: int):
     return session.query(LessonSchedule).filter(LessonSchedule.id == id,
-                                                LessonSchedule.user_id == user_id).first()
+                                                LessonSchedule.tutor_id == user_id).first()
 
-def get_lesson_schedules(user_id : int):
-    return session.query(LessonSchedule).filter(LessonSchedule.user_id == user_id).all()
+
+def get_lesson_schedule(id: int):
+    return session.query(LessonSchedule).filter(LessonSchedule.id == id).first()
+
+
+def get_lesson_schedules(user_id: int):
+    return session.query(LessonSchedule).filter(LessonSchedule.tutor_id == user_id).all()
+
 
 def merge_lesson_schedule(lesson_schedule: LessonSchedule):
     return session.merge(lesson_schedule)

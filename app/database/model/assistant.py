@@ -14,8 +14,8 @@ class Assistant(SQLModel, table=True):
     threads: List["Thread"] = Relationship(back_populates="assistant")
 
 
-def get_assistant_by_userid_and_role(user_id: int, role: str):
-    return session.query(Assistant).filter(Assistant.user_id == user_id, Assistant.role == role).first()
+def get_assistant_by_role(role: str):
+    return session.query(Assistant).filter(Assistant.role == role).first()
 
 
 def create_assistant(assistant: Assistant):

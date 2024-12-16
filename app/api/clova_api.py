@@ -11,7 +11,8 @@ from fastapi import APIRouter, Depends, Request, UploadFile, HTTPException
 from pydantic import BaseModel
 
 from app.database.common import rollback, commit
-from app.database.model.lesson_schedule import get_lesson_schedule, merge_lesson_schedule, LessonSchedule
+from app.database.model.lesson_schedule import get_lesson_schedule, merge_lesson_schedule, LessonSchedule, \
+    get_lesson_schedule_by_userid
 from app.s3.connection import download_from_s3, upload_to_s3
 from app.services.clova_service import ClovaService
 from app.services.user_service import UserService
@@ -40,10 +41,10 @@ async def upload_records(request: Request,
         token = request.headers.get("Authorization")
         user_id = user_service.get_user_id(token)
 
-        lesson_schedule = get_lesson_schedule(lesson_schedule_id, user_id)
+        lesson_schedule = get_lesson_schedule_by_userid(lesson_schedule_id, user_id)
         if lesson_schedule is None:
             lesson_schedule = merge_lesson_schedule(LessonSchedule(id=lesson_schedule_id,
-                                                                   user_id=user_id))
+                                                                   tutor_id=user_id))
 
         audio_file_name = str(uuid.uuid4())
         bytes_io = BytesIO(await file.read())
@@ -69,7 +70,7 @@ async def make_dialogue(request: Request,
         token = request.headers.get("Authorization")
         user_id = user_service.get_user_id(token)
 
-        lesson_schedule = get_lesson_schedule(lesson_schedule_id, user_id)
+        lesson_schedule = get_lesson_schedule_by_userid(lesson_schedule_id, user_id)
         audio_url = lesson_schedule.audio_url
 
         response = await clova_service.speech_to_text(audio_url)

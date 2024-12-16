@@ -12,7 +12,6 @@ class User(SQLModel, table=True):
     review_assistant_id: str = Field(nullable=True, default=None)
 
     assistants: List["Assistant"] = Relationship(back_populates="user")
-    lesson_schedules: List["LessonSchedule"] = Relationship(back_populates="user")
 
 
 def get_user(user_id: int):

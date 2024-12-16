@@ -80,13 +80,13 @@ async def create_chat(lesson_schedule_id: int,
         token = request.headers.get("Authorization")
         user_id = user_service.get_user_id(token)
 
-        chat_assistant = get_assistant_by_userid_and_role(user_id, "chat")
+        chat_assistant = get_assistant_by_role("chat")
 
         new_thread_id = await chat_service.create_thread()
 
         new_vector_store_id = await chat_service.create_vector_store()
 
-        find_lesson_schedule = get_lesson_schedule(lesson_schedule_id, user_id)
+        find_lesson_schedule = get_lesson_schedule(lesson_schedule_id)
 
         script_file_bytes = download_from_s3(find_lesson_schedule.dialogue_url)
         script_file_bytes.name = str(uuid.uuid4())+".txt"
@@ -120,7 +120,7 @@ async def show_dialogue(lesson_schedule_id: int,
         user_id = user_service.get_user_id(token)
 
         # 1. user_id로 chat_assistant 조회
-        chat_assistant = get_assistant_by_userid_and_role(user_id, "chat")
+        chat_assistant = get_assistant_by_role("chat")
 
         # 2. assistant_id와 lesson_schedule_id로 thread 조회
         find_thread = get_thread(chat_assistant.id, lesson_schedule_id)
@@ -152,7 +152,7 @@ async def send_message(lesson_schedule_id: int,
         user_id = user_service.get_user_id(token)
 
         # 1. user_id로 assistant 조회
-        chat_assistant = get_assistant_by_userid_and_role(user_id, "chat")
+        chat_assistant = get_assistant_by_role("chat")
 
         # 2. 활성된 thread 조회
         find_thread = get_thread(chat_assistant.id, lesson_schedule_id)

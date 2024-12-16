@@ -9,7 +9,7 @@ from openai import BaseModel
 from app.api.chatgpt.converter import bytesio_to_uploadfile
 from app.database.model.assistant import *
 from app.database.common import *
-from app.database.model.lesson_schedule import get_lesson_schedule, get_lesson_schedules
+from app.database.model.lesson_schedule import get_lesson_schedule, get_lesson_schedules, get_lesson_schedule_by_userid
 from app.database.model.message import *
 from app.database.model.thread import *
 from app.database.model.user import *
@@ -95,13 +95,13 @@ async def create_review(lesson_schedule_id: int,
         token = request.headers.get("Authorization")
         user_id = user_service.get_user_id(token)
 
-        find_assistant = get_assistant_by_userid_and_role(user_id, "review")
+        find_assistant = get_assistant_by_role("review")
 
         new_thread_id = await chat_service.create_thread()
 
         new_vector_store_id = await chat_service.create_vector_store()
 
-        find_lesson_schedule = get_lesson_schedule(lesson_schedule_id, user_id)
+        find_lesson_schedule = get_lesson_schedule_by_userid(lesson_schedule_id, user_id)
         file_bytes = download_from_s3(find_lesson_schedule.dialogue_url)
 
         script_file_bytes = download_from_s3(find_lesson_schedule.dialogue_url)
@@ -143,7 +143,7 @@ async def view_review(lesson_schedule_id: int,
         user_id = user_service.get_user_id(token)
 
         # 1. user_id와 lesson_schedule_id로 수업일정 조회
-        find_lesson_schedule = get_lesson_schedule(lesson_schedule_id, user_id)
+        find_lesson_schedule = get_lesson_schedule(lesson_schedule_id)
         print(user_id, lesson_schedule_id, find_lesson_schedule)
 
         # 2. 수업일정의 복습자료 조회
@@ -167,7 +167,7 @@ async def complete_review(lesson_schedule_id: int,
         user_id = user_service.get_user_id(token)
 
         # 1. user_id와 lesson_schedule_id로 수업일정 조회
-        find_lesson_schedule = get_lesson_schedule(lesson_schedule_id, user_id)
+        find_lesson_schedule = get_lesson_schedule(lesson_schedule_id)
 
         # 2. 복습 완료 반영
         find_lesson_schedule.review_completed = True
