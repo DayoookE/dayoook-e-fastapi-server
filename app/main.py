@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api import google_meet_api, welfare_api, ai_api, clova_api
-from app.api.chatgpt import chat_api, review_api
+from app.api.chatgpt import chat_api, review_api, user_api
 from app.database.common import create_db_and_tables
 
 import uvicorn
@@ -34,6 +34,7 @@ app.include_router(chat_api.router)
 app.include_router(clova_api.router)
 app.include_router(review_api.router)
 # app.include_router(ai_api.router)
+app.include_router(user_api.router)
 
 
 @app.get("/health")
