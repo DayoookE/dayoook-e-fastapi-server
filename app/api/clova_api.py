@@ -44,7 +44,7 @@ async def upload_records(request: Request,
         lesson_schedule = get_lesson_schedule_by_userid(lesson_schedule_id, user_id)
         if lesson_schedule is None:
             lesson_schedule = merge_lesson_schedule(LessonSchedule(id=lesson_schedule_id,
-                                                                   tutor_id=user_id))
+                                                                   user_id=user_id))
 
         audio_file_name = str(uuid.uuid4())
         bytes_io = BytesIO(await file.read())
