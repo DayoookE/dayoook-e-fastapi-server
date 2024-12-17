@@ -77,9 +77,9 @@ async def create_chat(lesson_schedule_id: int,
                       user_service: UserService = Depends(),
                       email: str = Depends(get_current_user)):
     try:
-        token = request.headers.get("Authorization")
-        user_id = user_service.get_user_id(token)
-
+        #token = request.headers.get("Authorization")
+        #user_id = user_service.get_user_id(token)
+        print(email)
         chat_assistant = get_assistant_by_role("chat")
         print(chat_assistant)
 
