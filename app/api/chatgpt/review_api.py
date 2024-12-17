@@ -206,8 +206,9 @@ async def get_review_rate(request: Request,
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("", response_model=LessonScheduleIdListResponse)
-async def get_review_rate(request: Request,
+@router.get("/list/{tutorId}", response_model=LessonScheduleIdListResponse)
+async def get_review_list(request: Request,
+                          tutorId: int,
                           user_service: UserService = Depends(),
                           email: str = Depends(get_current_user)):
     try:
@@ -215,7 +216,7 @@ async def get_review_rate(request: Request,
         user_id = user_service.get_user_id(token)
 
         # 1. user_id로 수업 일정 모두 조회
-        lesson_schedules = get_lesson_schedules(user_id)
+        lesson_schedules = get_lesson_schedules(tutorId)
 
         lesson_schedule_responses = [LessonScheduleIdResponse(id=l.id) for l in lesson_schedules]
 
