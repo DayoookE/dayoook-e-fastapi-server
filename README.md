@@ -4,7 +4,7 @@
   <br />
   <h1>다육이(DayookE)</h1>
   <div>
-    <img src="https://img.shields.io/github/v/release/DayoookE/dayoook-e-server?color=%23068fc6" alt="GitHub release (latest by date)" />
+    <img src="https://img.shields.io/github/v/release/DayoookE/dayoook-e-fastapi-server?color=%23068fc6" alt="GitHub release (latest by date)" />
   </div>
   <br />
 </div>
